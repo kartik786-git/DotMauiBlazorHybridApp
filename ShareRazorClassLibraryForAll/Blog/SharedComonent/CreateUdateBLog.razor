@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using ShareRazorClassLibraryForAll.ViewModel;
+
+@if (Visible)
+{
+    <h3>@Title</h3>
+
+<EditForm  Model="blogModel" OnValidSubmit="CeateUPdateBlog">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="name">Name</label>
+        <InputText id="name" @bind-Value="blogModel.Name" class="form-control" />
+        <ValidationMessage For="@(() => blogModel.Name)" />
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+        <InputText id="description" @bind-Value="blogModel.Description" class="form-control" />
+        <ValidationMessage For="@(() => blogModel.Description)" />
+        </div>
+
+        <div class="form-group">
+            <label for="description">Image Url</label>
+        <InputText id="description" @bind-Value="blogModel.ImageUrl" class="form-control" />
+        <ValidationMessage For="@(() => blogModel.ImageUrl)" />
+        </div>
+        <button type="submit" class="btn btn-primary m-md-1">@SubmitTitile</button>
+        <button class="btn btn-primary m-md-1" @onclick="CancelBlog">Back to Blog list</button>
+    </EditForm>
+    }
+
+@code {
+    [Parameter]
+    public string SubmitTitile { get; set; } = "Create";
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public BlogViewModel blogModel { get; set; } = new BlogViewModel();
+
+    [Parameter]
+    public EventCallback SaveClicked { get; set; }
+
+    [Parameter]
+    public EventCallback CancelClicked { get; set; }
+
+    private async Task CancelBlog()
+    {
+        await CancelClicked.InvokeAsync(blogModel);
+    }
+
+    private async Task CeateUPdateBlog()
+    {
+        await SaveClicked.InvokeAsync(blogModel);
+    }
+
+}

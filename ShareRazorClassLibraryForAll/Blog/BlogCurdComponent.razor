@@ -1,0 +1,174 @@
+﻿@using ShareRazorClassLibraryForAll.Blog.SharedComonent
+@using ShareRazorClassLibraryForAll.Data.Blog;
+@using ShareRazorClassLibraryForAll.ViewModel;
+
+<AddButton Visible="@showAddButton" CreateBlogClicked="CreateBLog" />
+
+<BlogCard Blogs="@blogs" Visible="@showCrad" EditBlogClicked="EditBLog" 
+    DeleteBlogCofirmationClicked="DeleteConfirmation" ViewBlogClicked="ViewBLog" />
+
+<CreateUdateBLog blogModel="@createUpdateModel" CancelClicked="CancelBlog"
+                 SaveClicked="saveBlog"
+                 Visible="@showCreateUpdate" SubmitTitile="@submitTitle" Title="@createFormTitle" />
+
+<Confirm CancelBlogClicked="cancelDelete" DeleteBlogClicked="DeleteBlog" Visible="@showConfirm" />
+
+<BlogDetails BackToBlogClicked="cancelDelete" EditBlog="@createUpdateModel" Visible="@showBlogDetail" />
+
+@code {
+    private bool showCrad = false;
+    private bool showAddButton = false;
+    private bool showCreateUpdate = false;
+    private bool showConfirm = false;
+    private bool showBlogDetail = false;
+    private List<BlogViewModel> blogs = new List<BlogViewModel>();
+    private BlogViewModel createUpdateModel;
+    private string createFormTitle = "Create new blog";
+    private string submitTitle;
+    private int deleteBlogId;
+
+    [Inject]
+    private IBlogService blogService { get; set; }
+
+    protected override void OnInitialized()
+    {
+        showCrad = true;
+        showAddButton = true;
+        LoadBlogs();
+    }
+
+    private async void LoadBlogs()
+    {
+        var bloglist = await blogService.GetAllAsync();
+        blogs = bloglist.Select(x => new BlogViewModel()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                ImageUrl = x.Url
+            }).ToList();
+    }
+
+    private void CreateBLog()
+    {
+        ResetAllVisibleField();
+        createUpdateModel = new BlogViewModel();
+        showCreateUpdate = true;
+        createFormTitle = "Create new blog";
+        submitTitle = "Create";
+    }
+
+    private async void saveBlog()
+    {
+        if (createUpdateModel.Id > 0)
+        {
+            // edit
+            var blogEntity = new Blog
+                {
+                    Id = createUpdateModel.Id,
+                    Description = createUpdateModel.Description,
+                    Name = createUpdateModel.Name,
+                    Url = createUpdateModel.ImageUrl
+                };
+            await blogService.UpdateAsync(createUpdateModel.Id, blogEntity);
+
+        }
+        else
+        {
+            var blog = new Blog
+                {
+                    Id = createUpdateModel.Id,
+                    Name = createUpdateModel.Name,
+                    Description = createUpdateModel.Description,
+                    Url = createUpdateModel.ImageUrl
+                };
+            await blogService.CreateAsync(blog);
+        }
+
+        ResetAllVisibleField();
+        LoadBlogs();
+        showCrad = true;
+        showAddButton = true;
+
+
+    }
+    private void CancelBlog()
+    {
+        ResetAllVisibleField();
+        LoadBlogs();
+        showCrad = true;
+        showAddButton = true;
+    }
+
+    private void ResetAllVisibleField()
+    {
+        showCrad = false;
+        showAddButton = false;
+        showCreateUpdate = false;
+        showConfirm = false;
+        showBlogDetail = false;
+        deleteBlogId = 0;
+        blogs = null!;
+    }
+
+    private async void EditBLog(int blogid)
+    {
+
+        //add
+        var blog = await blogService.GetByIdAsync(blogid);
+
+        createUpdateModel = new BlogViewModel
+                {
+                    Id = blog.Id,
+                    Description = blog.Description,
+                    Name = blog.Name,
+                    ImageUrl = blog.Url
+                };
+
+        createFormTitle = "update Blog";
+        submitTitle = "Update";
+        ResetAllVisibleField();
+        showCreateUpdate = true;
+
+    }
+
+    private void cancelDelete()
+    {
+        ResetAllVisibleField();
+        LoadBlogs();
+        showCrad = true;
+    }
+
+    private async void DeleteBlog()
+    {
+        await  blogService.DeleteAsync(deleteBlogId);
+        ResetAllVisibleField();
+        LoadBlogs();
+        showCrad = true;
+    }
+
+    private void DeleteConfirmation(int blogId)
+    {
+        deleteBlogId = blogId;
+        showConfirm = true;
+
+    }
+
+    private async void ViewBLog(int id)
+    {
+        var blog = await blogService.GetByIdAsync(id);
+
+        createUpdateModel = new BlogViewModel
+            {
+                Id = blog.Id,
+                Description = blog.Description,
+                Name = blog.Name,
+                ImageUrl = blog.Url
+            };
+        ResetAllVisibleField();
+        showBlogDetail = true;
+    }
+
+
+
+}

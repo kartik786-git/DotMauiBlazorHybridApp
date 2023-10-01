@@ -1,0 +1,20 @@
+﻿
+@if(Visible)
+{
+<div> <button class="btn btn-primary" @onclick="CreateBlog">Add</button></div>
+}
+@code {
+
+    [Parameter]
+    public bool Visible{ get; set; }
+
+    [Parameter]
+    public EventCallback CreateBlogClicked { get; set; }
+
+    private async void CreateBlog()
+    {
+       await CreateBlogClicked.InvokeAsync();
+    }
+
+
+}

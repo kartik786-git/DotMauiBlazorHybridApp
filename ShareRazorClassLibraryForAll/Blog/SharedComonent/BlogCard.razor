@@ -1,0 +1,60 @@
+﻿@using ShareRazorClassLibraryForAll.ViewModel;
+
+@if(Visible)
+{
+
+<div class="row">
+
+    @foreach (var blog in Blogs)
+    {
+        <div class="col-sm-4 p-2">
+            <div class="card">
+                <div class="card-header text-center  bg-warning"><h4>@blog.Name </h4></div>
+                <div class="card-body">
+                    <div class="image-container">
+                        <img src="@blog.ImageUrl" alt="Card Image" class="card-image" />
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <button class="btn btn btn-success m-1" @onclick="() => ViewBlog(blog.Id)">View</button>
+                    <button class="btn btn-primary m-1" @onclick="() => EditBlog(blog.Id)">Edit</button>
+                    <button class="btn btn-danger m-1" @onclick="() => DeleteConfirmation(blog.Id)">Delete</button>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+}
+@code {
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public List<BlogViewModel> Blogs { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ViewBlogClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<int> EditBlogClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<int> DeleteBlogCofirmationClicked { get; set; }
+
+    private void ViewBlog(int id)
+    {
+        ViewBlogClicked.InvokeAsync(id);
+    }
+
+    private void EditBlog(int id)
+    {
+        EditBlogClicked.InvokeAsync(id);
+    }
+    private void DeleteConfirmation(int id)
+    {
+        DeleteBlogCofirmationClicked.InvokeAsync(id);
+    }
+
+}
